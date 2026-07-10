@@ -1,0 +1,22 @@
+{
+  "name": "emberline-dtl",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Tests JavaScript para el motor Rust de rebates EmberlineDTL.",
+  "scripts": {
+    "build": "cargo build --locked",
+    "test": "node --test \"tests/node/*.test.js\"",
+    "test:all": "cargo test --locked && node --test \"tests/node/*.test.js\"",
+    "ci": "bash scripts/ci.sh",
+    "loc": "node scripts/check-loc.mjs",
+    "fmt": "prettier --write --config .prettierrc --ignore-path .prettierignore \"tests/**/*.js\" \"scripts/**/*.mjs\" \"*.md\" \".github/**/*.yml\"",
+    "fmt:check": "prettier --check --config .prettierrc --ignore-path .prettierignore \"tests/**/*.js\" \"scripts/**/*.mjs\" \"*.md\" \".github/**/*.yml\""
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.3"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "EmberlineDTL normal",
+      "type": "lldb",
+      "request": "launch",
+      "cargo": {
+        "args": ["build", "--bin=emberline_dtl"],
+        "filter": {
+          "name": "emberline_dtl",
+          "kind": "bin"
+        }
+      },
+      "args": ["scenario", "normal"],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
