@@ -29,7 +29,7 @@ pub struct RouteReport {
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ScenarioReport {
-    pub lab: String,
+    pub protocol: String,
     pub scenario: String,
     pub network_id: u64,
     pub clock_ms: u64,
@@ -82,7 +82,7 @@ impl ScenarioReport {
         let invariants = engine.invariants();
         let reference_digest = crate::reference::reference_digest()?;
         let mut report = Self {
-            lab: "EmberlineDTL".to_owned(),
+            protocol: "EmberlineDTL".to_owned(),
             scenario: scenario.to_owned(),
             network_id: engine.config.network_id,
             clock_ms: engine.clock_ms,

@@ -4,8 +4,8 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const src = join(root, "src");
-const min = 5_000;
-const max = 6_000;
+const min = 6_200;
+const max = 6_900;
 
 function files(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {

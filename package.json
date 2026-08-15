@@ -1,17 +1,18 @@
 {
   "name": "emberline-dtl",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Tests JavaScript para el motor Rust de rebates EmberlineDTL.",
+  "description": "Motor determinista de rutas DTL, reservas y rebates operativos.",
   "scripts": {
     "build": "cargo build --locked",
     "test": "node --test \"tests/node/*.test.js\"",
     "test:all": "cargo test --locked && node --test \"tests/node/*.test.js\"",
     "ci": "bash scripts/ci.sh",
     "loc": "node scripts/check-loc.mjs",
-    "fmt": "prettier --write --config .prettierrc --ignore-path .prettierignore \"tests/**/*.js\" \"scripts/**/*.mjs\" \"*.md\" \".github/**/*.yml\"",
-    "fmt:check": "prettier --check --config .prettierrc --ignore-path .prettierignore \"tests/**/*.js\" \"scripts/**/*.mjs\" \"*.md\" \".github/**/*.yml\""
+    "verify:release": "node scripts/verify-release.mjs",
+    "fmt": "prettier --write --config .prettierrc --ignore-path .prettierignore \"sdk/**/*.js\" \"tests/**/*.js\" \"scripts/**/*.mjs\" \"*.md\" \"docs/**/*.md\" \".github/**/*.yml\"",
+    "fmt:check": "prettier --check --config .prettierrc --ignore-path .prettierignore \"sdk/**/*.js\" \"tests/**/*.js\" \"scripts/**/*.mjs\" \"*.md\" \"docs/**/*.md\" \".github/**/*.yml\""
   },
   "engines": {
     "node": ">=24"

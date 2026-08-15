@@ -1,56 +1,72 @@
-# Seguridad
+# Política de seguridad
 
-## Modelo
+## Versiones mantenidas
 
-EmberlineDTL separa la admision de rutas, la reserva de presupuesto, la ejecucion
-del settlement y la conciliacion del pool. Cada ruta queda asociada a un
-operador registrado, un activo primario, una reserva y un recibo final de
-ejecucion.
+| Serie   | Estado            |
+| ------- | ----------------- |
+| `1.x`   | Mantenida         |
+| `< 1.0` | Sin mantenimiento |
 
-El motor local asume que:
+`main` contiene el estado integrado. `production` identifica el commit promovido y cada entrega estable usa un tag anotado `vMAJOR.MINOR.PATCH`.
 
-- los operadores ya estan registrados en el libro de operadores;
-- el pool mantiene liquidez suficiente antes de admitir rutas;
-- las rutas se ejecutan una sola vez;
-- los reportes JSON son la superficie publica para integraciones y pruebas;
-- los escenarios incluidos son deterministas.
+## Límites de confianza
 
-## Invariantes Esperadas
+EmberlineDTL calcula rutas y asientos, pero no autentica identidades externas ni persiste snapshots. El integrador debe autenticar, autorizar, ordenar comandos, fijar políticas, almacenar evidencia y limitar recursos.
 
-- Las reservas cerradas conservan `paid + penalty + released == reserved`.
-- El pool no mantiene saldos negativos.
-- Las rutas ejecutadas enlazan recibo, reserva y operador esperados.
-- Las penalizaciones quedan contabilizadas de forma separada al pago de rebates.
-- Los balances de operadores reflejan los rebates pagados.
-
-## Validaciones
-
-La suite local ejecuta:
-
-```bash
-cargo fmt --all -- --check
-cargo build --all-targets --locked
-cargo test --locked
-cargo clippy --all-targets --all-features --locked -- -D warnings
-node scripts/check-loc.mjs
-node --test "tests/node/*.test.js"
+```mermaid
+flowchart LR
+    U["Operator identity"] --> A["Authorization gateway"]
+    A --> Q["Ordered route queue"]
+    Q --> E["EmberlineDTL"]
+    E --> J["Journal + digest"]
+    J --> R["Independent reconciler"]
+    R -->|match| C["Commit"]
+    R -->|difference| H["Hold asset"]
 ```
 
-## Dependencias
+## Controles del integrador
 
-El proyecto usa un conjunto pequeno de dependencias Rust para serializacion,
-errores y hashing determinista. Dependabot esta configurado para Cargo, npm y
-GitHub Actions.
+- Asignar roles mínimos y negar por defecto.
+- Aplicar idempotencia a route, reservation y settlement IDs.
+- Serializar cambios por activo y versión de estado.
+- Verificar expiración, network ID y política antes de ejecutar.
+- Fijar timeout, memoria y tamaño máximo de stdout.
+- Persistir input hash, binary hash, policy hash y output hash.
+- Reconciliar pool, operadores y postings antes de confirmar.
+- Detener nuevas reservas cuando la banda de tesorería lo exija.
 
-## Alcance De Revision
+## Invariantes
 
-Revisar especialmente:
+```mermaid
+flowchart TD
+    C["Command"] --> I{"Identity + nonce"}
+    I -->|invalid| X["Reject"]
+    I -->|valid| P{"Policy + risk"}
+    P -->|denied| X
+    P -->|approved| T["Transition"]
+    T --> R{"Reconciled"}
+    R -->|yes| K["Commit + digest"]
+    R -->|no| H["Hold + evidence"]
+```
 
-- admision de rutas y limites por operador;
-- calculo de reservas del pool;
-- scoring de coste y latencia;
-- cierre de reservas;
-- consistencia entre reporte JSON y estado interno.
+```text
+pool.available >= 0
+pool.reserved >= 0
+closedReservation.paid + penalty + released = amount
+route.operator = receipt.operator
+route.id = receipt.route
+operator.balance >= 0
+ledger.poolAvailable = report.pool.available
+```
 
-Los reportes de seguridad deben incluir escenario, comando ejecutado, salida JSON
-relevante y una descripcion reproducible del impacto observado.
+Un informe correcto no sustituye autorización ni control de concurrencia. Los límites deben evaluarse sobre el snapshot vigente y los compromisos que aún no hayan cerrado.
+
+## Comunicación responsable
+
+Use **GitHub Security Advisories** en la pestaña Security. Evite issues públicos con escenarios de impacto económico.
+
+Incluya versión, commit, plataforma, escenario mínimo, salida observada, impacto por activo, hashes y una prueba de regresión propuesta. El equipo confirmará recepción, reproducirá el caso en un entorno aislado y coordinará la publicación.
+
+## Dependencias y secretos
+
+El build no requiere secretos. CI usa lockfiles, permisos de solo lectura, Rust y Node fijados y acciones mantenidas. Credenciales de operación, firmas y datos personales pertenecen al plano de control y nunca deben aparecer en rutas, logs o artefactos.

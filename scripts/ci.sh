@@ -53,9 +53,23 @@ if [[ -z "${NODE_BIN:-}" ]] && ! NODE_BIN="$(resolve_cmd node)"; then
     exit 127
 fi
 
+if [[ -z "${NPM_BIN:-}" ]] && ! NPM_BIN="$(resolve_cmd npm)"; then
+    echo "No se encontro un npm ejecutable en PATH." >&2
+    exit 127
+fi
+
 "$CARGO_BIN" fmt --all -- --check
 "$CARGO_BIN" build --all-targets --locked
 "$CARGO_BIN" test --locked
 "$CARGO_BIN" clippy --all-targets --all-features --locked -- -D warnings
+"$NPM_BIN" run fmt:check
 "$NODE_BIN" scripts/check-loc.mjs
 "$NODE_BIN" --test "tests/node/*.test.js"
+"$NPM_BIN" audit --audit-level=high
+"$NODE_BIN" scripts/verify-release.mjs
+
+if [[ "${CI:-}" == "true" ]] && [[ -z "${WSL_DISTRO_NAME:-}" ]] && [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
+    echo "La verificacion ha modificado archivos versionados." >&2
+    git status --short
+    exit 1
+fi
