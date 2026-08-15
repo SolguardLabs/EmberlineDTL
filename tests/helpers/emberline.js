@@ -49,7 +49,7 @@ export function assertHex32(value) {
 }
 
 export function assertCommon(report, name) {
-  assert.equal(report.lab, "EmberlineDTL");
+  assert.equal(report.protocol, "EmberlineDTL");
   assert.equal(report.scenario, name);
   assert.equal(report.network_id, 41720);
   assertHex32(report.state_digest);

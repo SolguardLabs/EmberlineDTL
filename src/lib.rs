@@ -17,6 +17,7 @@ pub mod route;
 pub mod runtime;
 pub mod scenario;
 pub mod settlement;
+pub mod treasury;
 
 pub use accounting::{AccountingSnapshot, InvariantSet};
 pub use amount::{Bps, Units};
@@ -33,3 +34,7 @@ pub use risk::{Admission, RiskEnvelope, RiskSignal};
 pub use route::{RouteLeg, RoutePlan, SettlementReceipt};
 pub use scenario::{SCENARIO_NAMES, run_named_scenario};
 pub use settlement::{EngineConfig, SettlementEngine};
+pub use treasury::{
+    CapitalBand, PortfolioAssessment, TreasuryAssessment, TreasuryPolicy, TreasuryPosition,
+    assess_portfolio, assess_treasury,
+};
